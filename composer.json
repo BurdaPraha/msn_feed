@@ -1,0 +1,20 @@
+{
+  "name": "burdapraha/msn_feed",
+  "type": "drupal-module",
+  "description": "Custom msn_feed module",
+  "minimum-stability": "dev",
+  "keywords": ["Drupal", "MSN Feed"],
+  "license": "MIT",
+  "homepage": "https://github.com/BurdaPraha/msn_feed",
+  "authors": [
+    {
+      "name": "Roman Prochazka"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://packages.drupal.org/8"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * Implements hook_theme_registry_alter
+ */
+function msn_feed_theme_registry_alter(&$theme_registry) {
+  $theme_registry['paragraph__video_youtube__feed']['template'] = 'paragraph--video-youtube--feed';
+  $theme_registry['paragraph__video_youtube__feed']['path'] = drupal_get_path('module', 'msn_feed') . '/templates';
+  $theme_registry['paragraph__video_youtube__feed']['type'] = 'base_theme_engine';
+}
+
+
+function msn_feed_preprocess_views_view_row_rss(&$vars) {
+  //dpm($vars['row'],'theme row');
+  // $vars['options']['content_field'] = 'field_paragraphs';
+  // $vars['row']['content'] = 'no value';
+  $item = $vars['row'];
+  $vars['content'] = $item->content;
+  $vars['teaser_text'] = $item->teaser_text;
+  $vars['teaser_image'] = $item->teaser_image;
+}

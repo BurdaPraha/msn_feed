@@ -1,0 +1,8 @@
+type: module
+name: 'Burda Praha MSN Feed'
+description: 'Custom feed plugins and formaters for MSN and others.'
+package: Custom
+core: 8.x
+dependencies:
+  - 'drupal:views'
+
