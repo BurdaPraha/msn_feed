@@ -69,34 +69,19 @@ class MsnFeedRssFields extends RssFields {
       $row_index = 0;
     }
     $xml_rdf_namespaces['xmlns:' . 'content'] = 'http://purl.org/rss/1.0/modules/content/';
-    //$this->view->style_plugin->namespaces += ['xmlns:content'] = ["http://purl.org/rss/1.0/modules/content/"];
     $this->view->style_plugin->namespaces += $xml_rdf_namespaces;
-    //dpm($row_index,'r index');
     $item = $build['#row'];
 
     $field_teaser_image = $this->getField($row_index, $this->options['teaser_image_field']);
     $teaser_image = is_array($field_teaser_image) ? $field_teaser_image : ['#markup' => $field_teaser_image];
     $teaser_image_eid = $teaser_image['#markup']->__toString();
-    //dpm($teaser_image_eid,'tieid');
     if(is_numeric($teaser_image_eid)) {
       $media_entity = Media::load($teaser_image_eid);
       $image_markup =  msn_feed_format_image($media_entity);
       $teaser_image_markup = $image_markup;
-//dpm($render,'r');
-    } else {
-      //dpm($teaser_image_eid,'tieid nede');
     }
-    //dpm($field_teaser_image,'iri');
-    //$item->teaser_image = $item_teaser_image;
-
-#    $teaser_image_string = $item_teaser_image['#markup'];
-    //$teaser_image_string = $teaser_image_markup->__toString();
-#    $teaser_image_patched = str_replace('src="/sites/default/files', 'src="http://ma.vps5.romanpro.cz/sites/default/files', $teaser_image_string);
 
     $item->teaser_image = Markup::create($teaser_image_markup);
-#    $item->teaser_image = Markup::create('tmp iamge');
-
-
     $field_teaser_text = $this->getField($row_index, $this->options['teaser_text_field']);
     $item_teaser_text = is_array($field_teaser_text) ? $field_teaser_text : ['#markup' => $field_teaser_text];
     $item->teaser_text = $item_teaser_text;
