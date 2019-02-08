@@ -1,12 +1,24 @@
 <?php
 
+use Drupal\Core\Render\Markup;
+
 /**
  * Implements hook_theme_registry_alter
  */
 function msn_feed_theme_registry_alter(&$theme_registry) {
+  //dpm($theme_registry,'theme reg');
   $theme_registry['paragraph__video_youtube__feed']['template'] = 'paragraph--video-youtube--feed';
   $theme_registry['paragraph__video_youtube__feed']['path'] = drupal_get_path('module', 'msn_feed') . '/templates';
   $theme_registry['paragraph__video_youtube__feed']['type'] = 'base_theme_engine';
+
+  #views-view-row-rss.html.twig
+ # $theme_registry['paragraph__video_youtube__feed']['template'] = 'paragraph--video-youtube--feed';
+  $theme_registry['views_view_row_rss']['path'] = drupal_get_path('module', 'msn_feed') . '/templates';
+  #$theme_registry['paragraph__video_youtube__feed']['type'] = 'base_theme_engine';
+
+  #$theme_registry['paragraph__video__feed']['template'] = 'paragraph--video--feed';
+  #$theme_registry['paragraph__video__feed']['path'] = drupal_get_path('module', 'msn_feed') . '/templates';
+  #$theme_registry['paragraph__video__feed']['type'] = 'module';
 }
 
 
@@ -18,4 +30,98 @@ function msn_feed_preprocess_views_view_row_rss(&$vars) {
   $vars['content'] = $item->content;
   $vars['teaser_text'] = $item->teaser_text;
   $vars['teaser_image'] = $item->teaser_image;
+}
+
+/**
+ * Paragraphs - Gallery item
+ * @param $variables
+ */
+function msn_feed_preprocess_paragraph(&$vars)
+{
+    $paragraph = $vars['paragraph'];
+    $bundle = $paragraph->bundle();
+    //dpm($bundle,'bundle');
+    if ($bundle == 'video' && $vars['view_mode'] == 'feed')
+    {
+      //deal with video upload
+      //dpm($vars,'video vars');
+     // dpm($paragraph,'par');
+     //dpm($paragraph->get('field_video'), 'video');
+     //dpm($paragraph->get('field_file')->entity, 'file video');
+
+    }
+
+    if ($bundle == 'image' && $vars['view_mode'] == 'feed')
+    {
+        //dpm(array_keys($vars),'vars p');
+       //dpm($vars['content'],'vars c');
+        //pm($paragraph->get('field_image')->entity->get('field_image')->entity ,'vars val');
+        //dpm($paragraph->get('field_image')->entity->get('field_copyright')->value ,'vars copy');
+      $content = msn_feed_format_image($paragraph->get('field_image')->entity); //media entity
+
+      //dpm($image_alt,'alt');
+      #$image_title = $image_field->get('title')->getString();
+    #  $image_url = file_create_url($image_uri);
+      //o data-portal-copyright="Joe Gargery/Fabrikam Images"
+      //$image = \Drupal::service('image.factory')->get($image_uri);
+     // dpm($image,'im');
+     # $markup = 'copy:' . $copyright;
+     # $markup .= ' image_uri: ' . $image_uri;
+     # $markup .= ' image_url: ' . $image_url;
+
+           //$vars['content'] = Markup::create('<h1>' . $markup . '</h1>');
+          $vars['content'] = $content;
+    }
+}
+
+/**
+ * formats image for msn feed
+ * @param Drupal\media_entity\Entity\Media media_entity
+ * @return renderable array
+ */
+function msn_feed_format_image($media_entity) {
+  //dpm($media_entity,'me');
+  //return array();
+  if(!$media_entity) {
+    return array();
+  }
+      $copyright = $media_entity->get('field_copyright')->value;
+      if(!$copyright) {
+        $copyright = '&copy; Burda Praha';
+      }
+      $image_field = $media_entity->get('field_image');
+      $image_file = $image_field->entity;
+      $image_uri = $image_file->getFileUri();
+      $image_info = $image_field->getValue();
+      $image_info = reset($image_info);
+      $default_alt = "Burda Praha";
+      if(!$image_info['alt']) {
+        $image_info['alt'] = $default_alt;
+      }
+      if(!$image_info['title']) {
+        $image_info['title'] = $default_alt;
+      }
+      $image_url = file_create_url($image_uri);
+      /*
+      $image_render_array = [
+        '#theme' => 'image_style',
+        '#style_name' => 'feed',
+        '#uri' => $image_uri,
+        '#alt' => $image_info['alt'],
+        '#title' => $image_info['title'],
+        '#attributes' => ['data-portal-copyright' => $copyright]
+     ];
+     */
+     //image style outputs relative image path and we need absolute url so screw it
+     $markup = '<img
+       src="' . $image_url . '"
+       alt="' . $image_info['alt'] .'"
+       title = "' . $image_info['title'] . '"
+       data-portal-copyright = "' . $copyright . '" />';
+       $output = Markup::create($markup);
+     return $output;
+}
+
+function msn_feed_preprocess_image_style(&$vars) {
+  //dpm($vars,'im vars');
 }

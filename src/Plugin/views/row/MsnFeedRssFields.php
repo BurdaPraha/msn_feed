@@ -6,6 +6,7 @@ use Drupal\views\Plugin\views\row\RssFields;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Render\Markup;
+use Drupal\media_entity\Entity\Media;
 
 /**
  * Renders an RSS item based on fields.
@@ -46,7 +47,7 @@ class MsnFeedRssFields extends RssFields {
     $form['teaser_image_field'] = [
       '#type' => 'select',
       '#title' => $this->t('Teaser image field'),
-      '#description' => $this->t('Shows Image on top of the content field.'),
+      '#description' => $this->t('Shows Image on top of the content field. Media field should be formated as target id.'),
       '#options' => $view_fields_labels,
       '#default_value' => $this->options['teaser_image_field'],
       '#required' => TRUE,
@@ -74,14 +75,26 @@ class MsnFeedRssFields extends RssFields {
     $item = $build['#row'];
 
     $field_teaser_image = $this->getField($row_index, $this->options['teaser_image_field']);
-    $item_teaser_image = is_array($field_teaser_image) ? $field_teaser_image : ['#markup' => $field_teaser_image];
+    $teaser_image = is_array($field_teaser_image) ? $field_teaser_image : ['#markup' => $field_teaser_image];
+    $teaser_image_eid = $teaser_image['#markup']->__toString();
+    //dpm($teaser_image_eid,'tieid');
+    if(is_numeric($teaser_image_eid)) {
+      $media_entity = Media::load($teaser_image_eid);
+      $image_markup =  msn_feed_format_image($media_entity);
+      $teaser_image_markup = $image_markup;
+//dpm($render,'r');
+    } else {
+      //dpm($teaser_image_eid,'tieid nede');
+    }
+    //dpm($field_teaser_image,'iri');
     //$item->teaser_image = $item_teaser_image;
 
-    $teaser_image_string = $item_teaser_image['#markup'];
+#    $teaser_image_string = $item_teaser_image['#markup'];
     //$teaser_image_string = $teaser_image_markup->__toString();
-    $teaser_image_patched = str_replace('src="/sites/default/files', 'src="http://ma.vps5.romanpro.cz/sites/default/files', $teaser_image_string);
+#    $teaser_image_patched = str_replace('src="/sites/default/files', 'src="http://ma.vps5.romanpro.cz/sites/default/files', $teaser_image_string);
 
-    $item->teaser_image = Markup::create($teaser_image_patched);
+    $item->teaser_image = Markup::create($teaser_image_markup);
+#    $item->teaser_image = Markup::create('tmp iamge');
 
 
     $field_teaser_text = $this->getField($row_index, $this->options['teaser_text_field']);
@@ -90,10 +103,12 @@ class MsnFeedRssFields extends RssFields {
 
     $field_content = $this->getField($row_index, $this->options['content_field']);
     $item_content = is_array($field_content) ? $field_content : ['#markup' => $field_content];
-    //workaround:
+    //we need to scan the html and append host to relative paths
+    $host = \Drupal::request()->getSchemeAndHttpHost();
     $content_markup = $item_content['#markup'];
     $content_string = $content_markup->__toString();
-    $content_patched = str_replace('src="/sites/', 'src="http://ma.vps5.romanpro.cz/sites/', $content_string);
+    //
+    $content_patched = str_replace('src="/sites/', 'src="' . $host . '/sites/', $content_string);
 
     $item->content = Markup::create($content_patched);
 
