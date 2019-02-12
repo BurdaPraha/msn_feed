@@ -31,9 +31,10 @@ function msn_feed_preprocess_paragraph(&$vars) {
   $paragraph = $vars['paragraph'];
   $bundle = $paragraph->bundle();
   if ($bundle == 'video' && $vars['view_mode'] == 'feed') {
+    //todo: deal with upload video paragraphs
     //deal with video upload
     //dpm($vars,'video vars');
-    // dpm($paragraph,'par');
+    //dpm($paragraph,'par');
     //dpm($paragraph->get('field_video'), 'video');
     //dpm($paragraph->get('field_file')->entity, 'file video');
   }
@@ -54,16 +55,18 @@ function msn_feed_format_image($media_entity) {
   if(!$media_entity) {
     return array();
   }
-  $copyright = $media_entity->get('field_copyright')->value;
-  if(!$copyright) {
-    $copyright = '&copy; Burda Praha';
+  $copyright_value = $media_entity->get('field_copyright')->value;
+  if($copyright_value) {
+    $copyright = ' data-portal-copyright="' . $copyright_value . '" ';
+  } else {
+    $copyright = ' ';
   }
   $image_field = $media_entity->get('field_image');
   $image_file = $image_field->entity;
   $image_uri = $image_file->getFileUri();
   $image_info = $image_field->getValue();
   $image_info = reset($image_info);
-  $default_alt = "Burda Praha";
+  $default_alt = "";
   if(!$image_info['alt']) {
     $image_info['alt'] = $default_alt;
   }
@@ -85,8 +88,8 @@ function msn_feed_format_image($media_entity) {
  $markup = '<img
    src="' . $image_url . '"
    alt="' . $image_info['alt'] .'"
-   title = "' . $image_info['title'] . '"
-   data-portal-copyright = "' . $copyright . '" />';
+   title="' . $image_info['title'] . '"' .
+   $copyright . ' />';
    $output = Markup::create($markup);
  return $output;
 }
