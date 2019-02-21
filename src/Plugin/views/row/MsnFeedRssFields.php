@@ -79,6 +79,8 @@ class MsnFeedRssFields extends RssFields {
       $media_entity = Media::load($teaser_image_eid);
       $image_markup =  msn_feed_format_image($media_entity);
       $teaser_image_markup = $image_markup;
+    } else {
+      $teaser_image_markup = '';
     }
 
     $item->teaser_image = Markup::create($teaser_image_markup);
