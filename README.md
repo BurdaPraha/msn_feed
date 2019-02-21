@@ -13,3 +13,16 @@
   - all the other paragraphs will be default to default
   Teaser image field needs to display target id
 
+==
+export config:
+views.view.msn_feed x
+image.style.feed x
+core.entity_view_mode.paragraph.feed x
+core.entity_view_display.paragraph.image.feed x
+core.entity_view_display.paragraph.video_youtube.feed x
+core.extension (enable msn_feed) x
++ add composer require burdapraha/msn_feed
+
+#############################################################
+ POZOR - Packigist neni momentalne nastaveny na autoupdate!
+#############################################################

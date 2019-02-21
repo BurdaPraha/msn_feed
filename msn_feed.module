@@ -40,15 +40,17 @@ function msn_feed_preprocess_paragraph(&$vars) {
   }
 
   if ($bundle == 'image' && $vars['view_mode'] == 'feed') {
-    $content = msn_feed_format_image($paragraph->get('field_image')->entity); //media entity
-    $vars['content'] = $content;
+    $media_entity = $paragraph->get('field_image')->entity;
+    if(!empty($media_entity)) {
+      $content = msn_feed_format_image($media_entity);
+      $vars['content'] = $content;
+    }
   }
 
   if ($bundle == 'media' && $vars['view_mode'] == 'feed') {
-
     $media_entity = $paragraph->get('field_media')->entity;
 
-    if($media_entity->hasField('field_image')) {
+    if(!empty($media_entity) && $media_entity->hasField('field_image')) {
       $content = msn_feed_format_image($paragraph->get('field_media')->entity);
       $vars['content'] = $content;
     }
@@ -58,8 +60,7 @@ function msn_feed_preprocess_paragraph(&$vars) {
   if ($bundle == 'gallery' && $vars['view_mode'] == 'feed') {
     $media_entity = $paragraph->get('field_media')->entity;
 
-    if($media_entity->hasField('field_media_images')) {
-
+    if(!empty($media_entity) && $media_entity->hasField('field_media_images')) {
       $author = $paragraph->getOwner();
       $name = $author->get('field_first_name')->value;
       $name .= ' ' . $author->get('field_last_name')->value;
@@ -69,8 +70,8 @@ function msn_feed_preprocess_paragraph(&$vars) {
 
   }
   if ($bundle == 'instagram' && $vars['view_mode'] == 'feed') {
-
-    $media_entity = $paragraph->get('field_media')->entity;
+    if(!empty($media_entity)) {
+      $media_entity = $paragraph->get('field_media')->entity;
 
       //$shared_time = date(DATE_RSS ,$media_entity->getCreatedTime());
       $field_url = $media_entity->get('field_url')->getValue();
@@ -80,13 +81,14 @@ function msn_feed_preprocess_paragraph(&$vars) {
         $title = $field_url["uri"];
       }
 
-    $markup = '<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $field_url["uri"] . '" data-instgrm-version="8">';
-    $markup .= '<div>';
-    $markup .='<p><a href="' . $field_url["uri"] . '">' . $title  . '</a></p>';
-    //$markup .= '<p>A post shared by <a href="https://www.instagram.com/elleczech"> Elle Czech</a> (@elleczech) on <time>' . $shared_time . '</time></p>';
-    $markup .= '</div>';
-    $markup .= '</blockquote>';
-    $vars['content'] = Markup::create($markup);
+      $markup = '<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $field_url["uri"] . '" data-instgrm-version="8">';
+      $markup .= '<div>';
+      $markup .='<p><a href="' . $field_url["uri"] . '">' . $title  . '</a></p>';
+      //$markup .= '<p>A post shared by <a href="https://www.instagram.com/elleczech"> Elle Czech</a> (@elleczech) on <time>' . $shared_time . '</time></p>';
+      $markup .= '</div>';
+      $markup .= '</blockquote>';
+      $vars['content'] = Markup::create($markup);
+    }
   }
 
 }
@@ -141,6 +143,11 @@ function msn_feed_format_image($media_entity) {
  return $output;
 }
 
+/**
+ * formats image gallery for msn feed
+ * @param Drupal\media_entity\Entity\Media media_entity
+ * @return Drupal\Core\Render\Markup
+ */
 function msn_feed_format_gallery($media_entity, $author_name) {
   if(!$media_entity) {
     return array();
