@@ -30,6 +30,12 @@ function msn_feed_preprocess_views_view_row_rss(&$vars) {
 function msn_feed_preprocess_paragraph(&$vars) {
   $paragraph = $vars['paragraph'];
   $bundle = $paragraph->bundle();
+  //We need to get rid of nasty markup, 'PRESERVE CERTAIN TAGS' doesn't have enough space to hold all required tags
+  //This only fitlers paragraphs we don't manage
+  $allowed_tags = '<h2><h3><h4><h5><h6><p><span><div><br><img><url><picture><video><a><strong><iframe><source>';
+  $html = drupal_render($vars['content']);
+  $clean_html = strip_tags($html, $allowed_tags);
+  $vars['content'] = Markup::create($clean_html);
   if ($bundle == 'video' && $vars['view_mode'] == 'feed') {
     //todo: deal with upload video paragraphs
     //deal with video upload
@@ -70,9 +76,8 @@ function msn_feed_preprocess_paragraph(&$vars) {
 
   }
   if ($bundle == 'instagram' && $vars['view_mode'] == 'feed') {
+    $media_entity = $paragraph->get('field_media')->entity;
     if(!empty($media_entity)) {
-      $media_entity = $paragraph->get('field_media')->entity;
-
       //$shared_time = date(DATE_RSS ,$media_entity->getCreatedTime());
       $field_url = $media_entity->get('field_url')->getValue();
       $field_url = reset($field_url);
@@ -90,6 +95,7 @@ function msn_feed_preprocess_paragraph(&$vars) {
       $vars['content'] = Markup::create($markup);
     }
   }
+
 
 }
 
