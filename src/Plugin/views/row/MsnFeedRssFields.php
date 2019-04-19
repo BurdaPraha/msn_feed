@@ -74,7 +74,7 @@ class MsnFeedRssFields extends RssFields {
 
     $field_teaser_image = $this->getField($row_index, $this->options['teaser_image_field']);
     $teaser_image = is_array($field_teaser_image) ? $field_teaser_image : ['#markup' => $field_teaser_image];
-    $teaser_image_eid = $teaser_image['#markup']->__toString();
+    $teaser_image_eid = is_string($teaser_image['#markup']) ? $teaser_image['#markup'] : $teaser_image['#markup']->__toString();
     if(is_numeric($teaser_image_eid)) {
       $media_entity = Media::load($teaser_image_eid);
       $image_markup =  msn_feed_format_image($media_entity);
