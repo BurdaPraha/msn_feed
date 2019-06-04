@@ -93,8 +93,11 @@ class MsnFeedRssFields extends RssFields {
     //we need to scan the html and append host to relative paths
     $host = \Drupal::request()->getSchemeAndHttpHost();
     $content_markup = $item_content['#markup'];
-    $content_string = $content_markup->__toString();
-    //
+    if(is_object($content_markup)) {
+      $content_string = $content_markup->__toString();
+    } else {
+      $content_string = $content_markup;
+    }
     $content_patched = str_replace('src="/sites/', 'src="' . $host . '/sites/', $content_string);
 
     $item->content = Markup::create($content_patched);
