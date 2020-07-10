@@ -9,18 +9,23 @@ function msn_feed_theme_registry_alter(&$theme_registry) {
   $theme_registry['paragraph__video_youtube__feed']['template'] = 'paragraph--video-youtube--feed';
   $theme_registry['paragraph__video_youtube__feed']['path'] = drupal_get_path('module', 'msn_feed') . '/templates';
   $theme_registry['paragraph__video_youtube__feed']['type'] = 'base_theme_engine';
-
-  $theme_registry['views_view_row_rss']['path'] = drupal_get_path('module', 'msn_feed') . '/templates';
+  
+  $theme_registry['views_view_row_rss__msn_feed'] = $theme_registry['views_view_row_rss'];
+  $theme_registry['views_view_row_rss__msn_feed']['path'] = drupal_get_path('module', 'msn_feed') . '/templates';
+  $theme_registry['views_view_row_rss__msn_feed']['template']  = 'views-view-row-rss--msn-feed';
 }
 
 /**
  * Implements template_preprocess_views_view_row_rss
  */
 function msn_feed_preprocess_views_view_row_rss(&$vars) {
-  $item = $vars['row'];
-  $vars['content'] = $item->content;
-  $vars['teaser_text'] = $item->teaser_text;
-  $vars['teaser_image'] = $item->teaser_image;
+
+  if($vars['view']->id() == 'msn_feed') {
+    $item = $vars['row'];
+    $vars['content'] = $item->content;
+    $vars['teaser_text'] = $item->teaser_text;
+    $vars['teaser_image'] = $item->teaser_image;
+  }
 }
 
 /**
@@ -71,6 +76,7 @@ function msn_feed_preprocess_paragraph(&$vars) {
     if(!empty($media_entity) && $media_entity->hasField('field_media_images')) {
       $author = $paragraph->getOwner();
       //handle different field names on older instalations
+      $name='';
       if($author->hasField('field_first_name') && $author->hasField('field_last_name')) {
         $name = $author->get('field_first_name')->value;
         $name .= ' ' . $author->get('field_last_name')->value;
